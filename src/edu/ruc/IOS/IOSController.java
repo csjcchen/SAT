@@ -2,13 +2,19 @@ package edu.ruc.IOS;
 
 import java.util.Iterator;
 import org.opensat.data.ICNF;
+import org.opensat.algs.ISatHeuristic;
+import org.opensat.heuristics.TwoSidedJW;
+import org.opensat.data.ILiteral;
 
 public class IOSController {
 	
 	DPTree kb_tree; 	
+	ISatHeuristic heuristic; 
 	
 	public IOSController(ICNF KB) {
 		initialize(KB);
+		heuristic = new TwoSidedJW();
+			//TODO need to learn how to use heuristic
 	}
 
 	/*
@@ -57,38 +63,31 @@ public class IOSController {
 		}
 		else{
 			//generate the left- and right- child of the current node 
-			int varID = chooseVariable(v);
-			
+			ILiteral lit = heuristic.choose(v.getFormula()); 
+
 			// left child
 			DPNode l = new DPNode(v.getFormula());
-			LiteralBinding lb1 = new LiteralBinding(varID, 1);
-			LiteralBinding lb2 = new LiteralBinding(-1*varID, -1);
-			l.setLBByID(varID, lb1);
-			l.setLBByID(-1*varID, lb2);
+			LiteralBinding lb1 = new LiteralBinding(lit.getId(), 1);
+			LiteralBinding lb2 = new LiteralBinding(-1*lit.getId(), -1);
+			l.setLBByID(lit.getId(), lb1);
+			l.setLBByID(-1*lit.getId(), lb2);
 				
 			l.setParent(v);
 			v.setLeft_child(l);
 			
 			//right child
 			DPNode r =  new DPNode(v.getFormula());
-			lb1 = new LiteralBinding(-1*varID, 1);
-			lb2 = new LiteralBinding(varID, -1);
-			r.setLBByID(-1*varID, lb1);
-			r.setLBByID(varID, lb2);
+			lb1 = new LiteralBinding(-1*lit.getId(), 1);
+			lb2 = new LiteralBinding(lit.getId(), -1);
+			r.setLBByID(-1*lit.getId(), lb1);
+			r.setLBByID(lit.getId(), lb2);
 			
 			r.setParent(v);
 			v.setRight_child(r);			
 		}
 	}
 	
-	/*
-	 * choose a variable and branch the input node
-	 * */
-	int chooseVariable(DPNode v){
-		//TODO
-		return 0;
-	}
-	
+ 	
 	/*
 	 * to test whether the search process can be terminated
 	 * */
@@ -115,13 +114,15 @@ public class IOSController {
 	}
 	
 	boolean isSAT(DPNode v){
-		//TODO
-		return false;
+		return v.getFormula().isSatisfied();
 	}
 	
 	boolean isUNSAT(DPNode v){
-		//TODO
-		return false;
+		if (v.getFormula().hasNullClause()){
+			return true;
+		}
+		else
+			return false;
 	}
 	
 	
