@@ -3,8 +3,11 @@ package edu.ruc.IOS;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Hashtable;
+import java.util.List;
 
 import org.opensat.data.ICNF;
+import org.opensat.data.IClause;
+import org.opensat.data.ILiteral;
 
 /*
  * The tree of solving SAT with DPLL.
@@ -28,6 +31,34 @@ public class DPTree {
 	public void initAssignmengList(){
 		//TODO
 	}
+	
+	/*clone KB to apply solver*/
+	public ICNF cloneKB(){
+		ICNF f =null;
+		try{
+			f = (ICNF)Class.forName(KBFormula.getClass().getName()).newInstance(); 
+			f.beginLoadFormula();			
+			f.setUniverse(this.KBFormula.getVocabulary().getNumberOfVariables(), KBFormula.size());
+			
+			Iterator<IClause> clauseIterator = KBFormula.activeClauseIterator();
+				//TODO all clause iterator?
+			while (clauseIterator.hasNext()){
+				IClause cls = clauseIterator.next();
+				List<ILiteral> listLiterals = new ArrayList<ILiteral>();
+				ILiteral[] lits = cls.getLiterals(); 
+				for (int i=0;i<lits.length;i++){
+					listLiterals.add(lits[i]);
+				}			
+				f.addClause(listLiterals);
+			}
+		}
+		catch (Exception ex){
+			ex.printStackTrace(System.out);
+			return null;
+		}
+		return f;
+	}
+	
 
 	/*
 	 * find a node which is the closest to v among all nodes whose statuses are NotKnown;  

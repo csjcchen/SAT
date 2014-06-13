@@ -16,7 +16,8 @@ public class DPNode {
 	public static int NotKnown = 0;
 	
 	
-	private ICNF formula;//the cnf formula attached to this node;
+	private ArrayList<LiteralBinding> literalBindings;
+	
 	private int level;//the level this node located in
 	private DPNode parent;
 	private DPNode left_child;
@@ -24,45 +25,17 @@ public class DPNode {
 	private int status;// -1 UNSAT, 1 SAT, 0 NotKnown
 	
 	
-	public DPNode(ICNF formula) {
-		this.formula = formula;
+	
+	public DPNode(ArrayList<LiteralBinding> literalBindings) {
+		this.literalBindings =  literalBindings;
 	}
 	
-	public ICNF cloneAttachedFormula(){
-		//TODO
-		ICNF f;
-		try{
-			f = (ICNF)Class.forName(formula.getClass().getName()).newInstance(); 
-			f.beginLoadFormula();			
-			f.setUniverse(formula.getVocabulary().getNumberOfVariables(), formula.size());
-			
-			Iterator<IClause> clauseIterator = formula.activeClauseIterator();
-				//TODO all clause iterator?
-			while (clauseIterator.hasNext()){
-				IClause cls = clauseIterator.next();
-				List<ILiteral> listLiterals = new ArrayList<ILiteral>();
-				ILiteral[] lits = cls.getLiterals(); 
-				for (int i=0;i<lits.length;i++){
-					listLiterals.add(lits[i]);
-				}			
-				f.addClause(listLiterals);
-			}
-		}
-		catch (Exception ex){
-			ex.printStackTrace(System.out);
-			return null;
-		}
-		return f;
-	}
-
-
-	/*
+	 /*
 	 * Get the literal bindings at this node.
 	 * 
 	 * */
 	public Iterator<LiteralBinding> getLBIterator(){
-		//TODO
-		return null;
+		return this.literalBindings.iterator();
 	}
 	
 	public LiteralBinding getLBByID(int id){
@@ -76,16 +49,6 @@ public class DPNode {
 	
 	/*getters and setters*/
 		
-	public ICNF getFormula() {
-		return formula;
-	}
-
-
-	public void setFormula(ICNF formula) {
-		this.formula = formula;
-	}
-
-
 	public int getLevel() {
 		return level;
 	}
