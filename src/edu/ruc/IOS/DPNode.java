@@ -1,8 +1,11 @@
 package edu.ruc.IOS;
 
 import org.opensat.data.ICNF;
-import java.util.ArrayList;
+import org.opensat.data.IClause;
+import org.opensat.data.ILiteral;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
 /*
  * A node generated during searching DPLL solution tree.
@@ -23,6 +26,33 @@ public class DPNode {
 	
 	public DPNode(ICNF formula) {
 		this.formula = formula;
+	}
+	
+	public ICNF cloneAttachedFormula(){
+		//TODO
+		ICNF f;
+		try{
+			f = (ICNF)Class.forName(formula.getClass().getName()).newInstance(); 
+			f.beginLoadFormula();			
+			f.setUniverse(formula.getVocabulary().getNumberOfVariables(), formula.size());
+			
+			Iterator<IClause> clauseIterator = formula.activeClauseIterator();
+				//TODO all clause iterator?
+			while (clauseIterator.hasNext()){
+				IClause cls = clauseIterator.next();
+				List<ILiteral> listLiterals = new ArrayList<ILiteral>();
+				ILiteral[] lits = cls.getLiterals(); 
+				for (int i=0;i<lits.length;i++){
+					listLiterals.add(lits[i]);
+				}			
+				f.addClause(listLiterals);
+			}
+		}
+		catch (Exception ex){
+			ex.printStackTrace(System.out);
+			return null;
+		}
+		return f;
 	}
 
 

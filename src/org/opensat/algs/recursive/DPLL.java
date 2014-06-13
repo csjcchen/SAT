@@ -119,7 +119,7 @@ public class DPLL extends SatSolverAdapter {
 	
   
 	protected boolean startSearch(ICNF f) throws TimeoutException {
-		
+		System.out.println();
 		System.out.println("*************************");
 		org.opensat.data.simple.CNFSimpleImplAltWL aw_f = (org.opensat.data.simple.CNFSimpleImplAltWL)f; 
 		aw_f.showAssignments();

@@ -195,4 +195,6 @@ public interface ICNF extends IFormula {
     
     IClause createClause(ILiteral [] lits, int size);
     
+ 
+    
 }

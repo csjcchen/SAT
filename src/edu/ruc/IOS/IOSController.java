@@ -16,6 +16,10 @@ public class IOSController {
 		heuristic = new TwoSidedJW();
 			//TODO need to learn how to use heuristic
 	}
+	
+	public ICNF cloneKB(){		
+		return this.kb_tree.getRoot().cloneAttachedFormula();
+	}
 
 	/*
 	 * construct kb_tree and do the first round search
