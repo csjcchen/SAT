@@ -39,12 +39,19 @@ public class DPNode {
 	}
 	
 	public LiteralBinding getLBByID(int id){
-		//TODO
+		for(int i=0;i<this.literalBindings.size();i++){
+			if (id == this.literalBindings.get(i).getId()){
+				return this.literalBindings.get(i);
+			}
+		}
 		return null;
 	}
 	
 	public void setLBByID(int id, LiteralBinding lb){
-		//TODO
+		assert id == lb.getId();
+		
+		LiteralBinding origin_lb = getLBByID(id);
+		origin_lb.setvalue(lb.getValue());
 	}
 	
 	/*getters and setters*/

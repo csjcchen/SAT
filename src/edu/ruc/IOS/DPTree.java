@@ -8,6 +8,7 @@ import java.util.List;
 import org.opensat.data.ICNF;
 import org.opensat.data.IClause;
 import org.opensat.data.ILiteral;
+import org.opensat.data.simple.CNFSimpleImplAltWL;
 
 /*
  * The tree of solving SAT with DPLL.
@@ -29,7 +30,24 @@ public class DPTree {
 	
 	/*build assignment list from the KBFormula*/
 	public void initAssignmengList(){
-		//TODO
+		//only support CNFSimpleImplAltWL
+		this.assign_list = new Hashtable<Integer,Assignment>();
+		try{
+			CNFSimpleImplAltWL f = (CNFSimpleImplAltWL)this.KBFormula;
+			int[] assign = f.getAllAssignments();
+			for (int i=1;i<assign.length;i++){
+				int id = i;
+				if (i>assign.length/2) 
+					id = assign.length/2 - i;
+				Assignment asmt = new Assignment(id);
+				asmt.setStatus(Assignment.NotKnown);
+				this.assign_list.put(new Integer(id), asmt);
+			}
+		}
+		catch (Exception ex){
+			ex.printStackTrace(System.out);
+			return;
+		}		 
 	}
 	
 	/*clone KB to apply solver*/

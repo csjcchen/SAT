@@ -8,6 +8,7 @@ import org.opensat.data.ContradictionFoundException;
 import org.opensat.algs.ISatHeuristic;
 import org.opensat.heuristics.TwoSidedJW;
 import org.opensat.data.ILiteral;
+import org.opensat.data.simple.CNFSimpleImplAltWL;
 
 public class IOSController {
 	
@@ -135,12 +136,15 @@ public class IOSController {
 				certificate.add(lit);*/
   			 recordSATNode(v); 
 		 }
+  		 else{
+  			 v.setStatus(DPNode.UNSAT);
+  		 }
   		 
   		 return result;
 	}
 	
 	
-	//record that the node is SAT
+	//record that the node is SAT and update the assignment list
 	void recordSATNode(DPNode v){
 		v.setStatus(DPNode.SAT);
     	
@@ -183,22 +187,25 @@ public class IOSController {
 		return result;
 	}
 	
-	boolean isSAT(DPNode v){
-		return false;
-		//return v.getFormula().isSatisfied();
-	}
-	
-	boolean isUNSAT(DPNode v){
-		return false;
-		/*if (v.getFormula().hasNullClause()){
-			return true;
-		}
-		else
-			return false;*/
-	}
-	
+	//only support CNFSimpleImplAltWL 
 	ArrayList<LiteralBinding> extractLiteralBindings(ICNF formula){
-		return null;
+		ArrayList<LiteralBinding> listLB = new ArrayList<LiteralBinding>();
+		try{
+			CNFSimpleImplAltWL f = (CNFSimpleImplAltWL)formula;
+			int[] assign = f.getAllAssignments();
+			for (int i=1;i<assign.length;i++){
+				int id = i;
+				if (i>assign.length/2) 
+					id = assign.length/2 - i;
+				LiteralBinding lb = new LiteralBinding(id,assign[i]);
+				listLB.add(lb);
+			}
+		}
+		catch (Exception ex){
+			ex.printStackTrace(System.out);
+			return null;
+		}
+		return listLB;
 	}
 	
 	public void update (ICNF new_knowledge){
