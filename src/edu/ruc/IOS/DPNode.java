@@ -6,6 +6,7 @@ import org.opensat.data.ILiteral;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
+import java.lang.StringBuffer;
 
 /*
  * A node generated during searching DPLL solution tree.
@@ -15,9 +16,11 @@ public class DPNode {
 	public static int SAT = 1;
 	public static int NotKnown = 0;
 	
+	private static int AutoIncrementor = 0;
 	
 	private ArrayList<LiteralBinding> literalBindings;
 	
+	private int id;
 	private int level;//the level this node located in
 	private DPNode parent;
 	private DPNode left_child;
@@ -54,8 +57,44 @@ public class DPNode {
 		origin_lb.setvalue(lb.getValue());
 	}
 	
+	/*return an auto incremented id*/
+	public int getAutoID(){
+		return DPNode.AutoIncrementor ++;		
+	}
+	
+	public String toString(){
+		StringBuffer str = new StringBuffer();
+		str.append("id=");
+		str.append(this.id);
+		str.append("\n");		
+		str.append("level=");
+		str.append(this.level);
+		str.append("\n");
+		str.append("status=");
+		str.append(this.status);
+		str.append("\n");
+		
+		str.append("Attached Literal Bindings:\n");
+		Iterator<LiteralBinding> it = this.getLBIterator();
+		while(it.hasNext()){
+			LiteralBinding lb = it.next();
+			str.append(lb);
+			str.append("\n");
+		}
+
+		return str.toString();
+	}
+	
 	/*getters and setters*/
 		
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	public int getLevel() {
 		return level;
 	}
@@ -106,10 +145,6 @@ public class DPNode {
 	}
 
 
-	/*for unit testing*/
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
+	 
 
 }

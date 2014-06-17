@@ -159,14 +159,15 @@ public class CNFSimpleImplAltWL extends CNFSimpleImplAlt {
      * to get all the assignments at current node
      * by JC Chen 2014.5.29
      * */
-	public int[]  getAllAssignments() throws CloneNotSupportedException{
+	public int[]  getAllAssignments() {
 		Iterator it = this.clauses.iterator();
 		int numVar = this.getVocabulary().getMaxVariableId();
 		int[] assign = new int[numVar*2+1]; 
+			// 1.... numVar store positive literals
+			// numVar+1, ..., assign.length-1 store negative literals		
 
 		while (it.hasNext()) {
-			System.out.println("___________________________");
-            IClause cl = (IClause) it.next();
+			IClause cl = (IClause) it.next();
             Iterator litIterator = cl.literalIterator();
             while (litIterator.hasNext()){
             	ILiteral lit = (ILiteral) litIterator.next();

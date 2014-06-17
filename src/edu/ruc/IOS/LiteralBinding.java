@@ -19,6 +19,10 @@ public class LiteralBinding {
 		this.id = id;
 		this.value = value;
 	}
+	
+	public String toString(){
+		return this.id + "|" + this.value;		
+	}
 
 
 	/*getters and setters */
@@ -37,9 +41,6 @@ public class LiteralBinding {
 	}
 
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
+	 
 
 }

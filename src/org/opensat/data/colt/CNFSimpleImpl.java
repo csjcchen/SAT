@@ -367,5 +367,13 @@ public class CNFSimpleImpl implements ICNF {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException();
     }
+    
+    /*added by Jinchuan Chen 17, June, 2014
+	 *To get the full list of clauses 
+	 * */
+    public Iterator fullClauseIterator(){
+    	//TODO
+    	return null;
+    }
 
 }

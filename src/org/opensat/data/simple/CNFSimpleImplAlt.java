@@ -394,5 +394,12 @@ public class CNFSimpleImplAlt implements ICNF {
 	    unitclauses.uncheckedPushBack(c); // for a stack of unitclauses
 	    //unitclauses.unchecked_push_front(c); // for a queue of unitclauses
 	}
+    
+    /*added by Jinchuan Chen 17, June, 2014
+	 *To get the full list of clauses 
+	 * */
+    public Iterator fullClauseIterator(){
+    	return clauses.iterator();
+    }
 
 }

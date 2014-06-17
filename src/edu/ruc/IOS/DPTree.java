@@ -8,6 +8,7 @@ import java.util.List;
 import org.opensat.data.ICNF;
 import org.opensat.data.IClause;
 import org.opensat.data.ILiteral;
+import org.opensat.data.IVocabulary;
 import org.opensat.data.simple.CNFSimpleImplAltWL;
 
 /*
@@ -55,17 +56,24 @@ public class DPTree {
 		ICNF f =null;
 		try{
 			f = (ICNF)Class.forName(KBFormula.getClass().getName()).newInstance(); 
-			f.beginLoadFormula();			
-			f.setUniverse(this.KBFormula.getVocabulary().getNumberOfVariables(), KBFormula.size());
+			int numVars = this.KBFormula.getVocabulary().getMaxVariableId();
 			
-			Iterator<IClause> clauseIterator = KBFormula.activeClauseIterator();
-				//TODO all clause iterator?
+			f.beginLoadFormula();			
+			f.setUniverse(numVars, KBFormula.size());			
+			IVocabulary voc = f.getVocabulary();
+			 
+			
+			Iterator<IClause> clauseIterator = KBFormula.fullClauseIterator();
+
 			while (clauseIterator.hasNext()){
 				IClause cls = clauseIterator.next();
 				List<ILiteral> listLiterals = new ArrayList<ILiteral>();
 				ILiteral[] lits = cls.getLiterals(); 
+
 				for (int i=0;i<lits.length;i++){
-					listLiterals.add(lits[i]);
+					ILiteral newLit = voc.getLiteral(lits[i].getId());
+					listLiterals.add(newLit);
+					//listLiterals.add(lits[i]);
 				}			
 				f.addClause(listLiterals);
 			}
@@ -76,6 +84,7 @@ public class DPTree {
 		}
 		return f;
 	}
+	
 	
 
 	/*
@@ -113,6 +122,27 @@ public class DPTree {
 	
 	public Iterator<Assignment> getAssignmentIterator(){
 		return this.assign_list.values().iterator();
+	}
+	
+	
+	private void printNode(DPNode v){
+		for (int i=0;i<v.getLevel();i++){
+			System.out.print("> ");
+		}
+		System.out.println();
+		System.out.println(v);
+		if (v.getLeft_child()!=null){
+			System.out.println(v.getId() +"'s left child is: " + v.getLeft_child().getId());
+			printNode(v.getLeft_child());
+		}
+		if (v.getRight_child()!=null){
+			System.out.println(v.getId() +"'s right child is: " + v.getRight_child().getId());
+			printNode(v.getRight_child());
+		}
+	}
+	
+	public void showTree(){
+		printNode(root);
 	}
 	
 	/*getters and setters*/

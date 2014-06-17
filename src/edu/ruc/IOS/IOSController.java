@@ -16,17 +16,20 @@ public class IOSController {
 	ISatHeuristic heuristic; 
 	
 	public IOSController(ICNF KB) {
-		initialize(KB);
 		heuristic = new TwoSidedJW();
 			//TODO need to learn how to use heuristic
+		
+		initialize(KB);		
+		this.kb_tree.showTree();
 	}
 	
 	/*
 	 * construct kb_tree and do the first round search
 	 * */
-	void initialize(ICNF KB){
+	private void initialize(ICNF KB){
 		ArrayList<LiteralBinding> listLB = extractLiteralBindings(KB); 
 		DPNode root = new DPNode(listLB);
+		root.setId(root.getAutoID());
 		root.setLevel(0);
 		
 		kb_tree = new DPTree(KB);
@@ -55,9 +58,10 @@ public class IOSController {
                 //generate a new node
                 ArrayList<LiteralBinding> listLB = extractLiteralBindings(f);
                 DPNode v1 = new DPNode(listLB);
+                v1.setId(v1.getAutoID());
                 v1.setParent(v);
                 v1.setLevel(v.getLevel()+1);
-				v.setLeft_child(v);
+				v.setLeft_child(v1);
 					//we assume unit clause propagation always generate a single left child
 	             
                 result = propagateUnitClauses(f,v1);
@@ -82,6 +86,7 @@ public class IOSController {
 			return result;
 			
 		} catch (ContradictionFoundException e) {
+			e.printStackTrace(System.out);
 			return false;
 		}
 		
@@ -120,6 +125,7 @@ public class IOSController {
 	boolean searchChild(DPNode parent, ICNF f, boolean isLeftChild){
 		 ArrayList<LiteralBinding> listLB = extractLiteralBindings(f);
 		 DPNode v = new DPNode(listLB);
+		 v.setId(v.getAutoID());
 		 v.setParent(parent);
 	     v.setLevel(parent.getLevel()+1);
 		 if (isLeftChild){
@@ -197,6 +203,14 @@ public class IOSController {
 				int id = i;
 				if (i>assign.length/2) 
 					id = assign.length/2 - i;
+				
+				/*if a LB's value is zero, we may change its value according to its opposite's value
+				 * Note that a LB's value always equals to -1*its opposite's value
+				 * */
+				if (assign[i] == 0){
+					assign[i] = -1* assign[(i + assign.length/2) % (assign.length-1)];
+				}
+				
 				LiteralBinding lb = new LiteralBinding(id,assign[i]);
 				listLB.add(lb);
 			}
@@ -204,7 +218,7 @@ public class IOSController {
 		catch (Exception ex){
 			ex.printStackTrace(System.out);
 			return null;
-		}
+		}		
 		return listLB;
 	}
 	
@@ -213,11 +227,7 @@ public class IOSController {
 	}
 	
 	
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-	}
-	
-	/*
+		/*
 	 * evaluate the status of the input node; update its attached assignments if necessary;
 	 * and generate the children of this node if possible. 
 	 * */

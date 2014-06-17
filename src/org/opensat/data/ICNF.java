@@ -146,6 +146,11 @@ public interface ICNF extends IFormula {
 	 */
 	Iterator activeClauseIterator();
 	
+	/*added by Jinchuan Chen 17, June, 2014
+	 *To get the full list of clauses 
+	 * */
+	Iterator fullClauseIterator();
+	
 	/**
 	 * Formula size in terms of active clauses.
 	 * 
