@@ -21,7 +21,7 @@ public class TestIOS {
 		CommandLine cmd;
 		String fileName = "";
 		
-		ICNF formula = new CNFSimpleImplAltWL();
+		ICNF formula = new CNFSimpleImplAltWL(new DynamicVocImp());
 		
 		try {
 			// parse command line options
@@ -38,7 +38,7 @@ public class TestIOS {
 			}
 			 
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
+			e.printStackTrace(System.out);
 			return;
 		}		
 		

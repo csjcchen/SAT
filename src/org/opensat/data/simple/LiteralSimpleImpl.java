@@ -54,7 +54,7 @@ public class LiteralSimpleImpl implements ILiteral, Comparable, HeapItem {
      * 
      * @param id
      */
-    protected LiteralSimpleImpl(int id) {
+    public LiteralSimpleImpl(int id) {
         this.id = id;
         this.opposite = null;
         clauses = new ArrayList();
@@ -65,7 +65,7 @@ public class LiteralSimpleImpl implements ILiteral, Comparable, HeapItem {
      * 
      * @param opposite
      */
-    protected LiteralSimpleImpl(LiteralSimpleImpl opposite) {
+    public LiteralSimpleImpl(LiteralSimpleImpl opposite) {
         id = -opposite.id;
         this.opposite = opposite;
         opposite.opposite = this;

@@ -9,6 +9,8 @@ import org.opensat.algs.ISatHeuristic;
 import org.opensat.heuristics.TwoSidedJW;
 import org.opensat.data.ILiteral;
 import org.opensat.data.simple.CNFSimpleImplAltWL;
+import org.opensat.data.IVocabulary;
+import org.opensat.data.IClause;
 
 public class IOSController {
 	
@@ -17,7 +19,6 @@ public class IOSController {
 	
 	public IOSController(ICNF KB) {
 		heuristic = new TwoSidedJW();
-			//TODO need to learn how to use heuristic
 		
 		initialize(KB);		
 		this.kb_tree.showTree();
@@ -28,7 +29,7 @@ public class IOSController {
 	 * */
 	private void initialize(ICNF KB){
 		ArrayList<LiteralBinding> listLB = extractLiteralBindings(KB); 
-		DPNode root = new DPNode(listLB);
+		DPNode root = new DPNode(listLB, 0); // set branch_lit_id to zero for the root node 
 		root.setId(root.getAutoID());
 		root.setLevel(0);
 		
@@ -57,12 +58,12 @@ public class IOSController {
                 
                 //generate a new node
                 ArrayList<LiteralBinding> listLB = extractLiteralBindings(f);
-                DPNode v1 = new DPNode(listLB);
+                DPNode v1 = new DPNode(listLB, lit.getId());
                 v1.setId(v1.getAutoID());
                 v1.setParent(v);
                 v1.setLevel(v.getLevel()+1);
 				v.setLeft_child(v1);
-					//we assume unit clause propagation always generate a single left child
+			  		//unit clause propagation always generate a left child
 	             
                 result = propagateUnitClauses(f,v1);
 					//recursively perform unit propagation 
@@ -108,13 +109,13 @@ public class IOSController {
 		
 		//try left child
 		f.propagateAssignment(lit);
-		result1 = searchChild(v,f,true); 
+		result1 = searchChild(v,f,true, lit); 
 		f.unpropagateAssignment(lit);
 			//backtracking
  
 		//try right child 
 		f.propagateAssignment(lit.opposite());
-		result2 = searchChild(v,f,false);
+		result2 = searchChild(v,f,false, lit.opposite());
 		f.unpropagateAssignment(lit);
 			//backtracking	
 		return result1 || result2;
@@ -122,9 +123,9 @@ public class IOSController {
 	}
 	
 	//generate and search the child of the node parent
-	boolean searchChild(DPNode parent, ICNF f, boolean isLeftChild){
+	boolean searchChild(DPNode parent, ICNF f, boolean isLeftChild, ILiteral branch_lit){
 		 ArrayList<LiteralBinding> listLB = extractLiteralBindings(f);
-		 DPNode v = new DPNode(listLB);
+		 DPNode v = new DPNode(listLB, branch_lit.getId());
 		 v.setId(v.getAutoID());
 		 v.setParent(parent);
 	     v.setLevel(parent.getLevel()+1);
@@ -222,8 +223,81 @@ public class IOSController {
 		return listLB;
 	}
 	
+	/*
+	 * merge the new appended knowledge into the existing KB.
+	 * 
+	 * */
+	void merge(ICNF new_klg){
+		ICNF KB = this.kb_tree.getKBFormula();
+		
+		/*
+		 * voc = KB.vocabulary;
+		 * for each clause in new_klg
+		 *   for each literal in this clause
+		 *      newlit = voc.getLiteral(literal.getID);
+		 *      listLiterals.add(newlit);
+		 *   KB.addClause(listLiterals);
+		 * */
+		IVocabulary voc = KB.getVocabulary();
+		Iterator cls_it = new_klg.activeClauseIterator();
+		while(cls_it.hasNext()){
+			IClause cls = (IClause)cls_it.next();
+			Iterator lit_it = cls.literalIterator();
+			ArrayList<ILiteral> listLiterals = new ArrayList<ILiteral>();
+			while(lit_it.hasNext()){
+				ILiteral old_lit = (ILiteral)lit_it.next();
+				ILiteral new_lit = voc.getLiteral(old_lit.getId());
+				listLiterals.add(new_lit);
+			}
+			KB.addClause(listLiterals);
+		}		
+	}
+	
+	
+	/*
+	 * starting from a node v, re-examine a new formula. 
+	 * v locates in a DPTree built with previous KB. 
+	 * formula is the the combination of the previous KB and new knowledge. 
+	 * each node in the sub-tree rooted in v will be marked as SAT or UNSAT.
+	 * new nodes may be also generated. 
+	 * */
+	
+	boolean reExamine(DPNode v, ICNF formula){
+		if (formula.hasNullClause()){
+			v.setStatus(DPNode.UNSAT);
+			return false;
+		}
+		
+		if (v.isLeaf()){
+			return propagateUnitClauses(formula,v);
+		}
+		else{			
+			Iterator<DPNode> it = v.getChildrenIterator();
+			boolean result = false;
+			while(it.hasNext()){
+				DPNode child = it.next();
+				if(child.getStatus()!=DPNode.UNSAT){
+					int branch_id = child.getBranchLitID();
+					ILiteral lit = formula.getVocabulary().getLiteral(branch_id);
+					formula.propagateAssignment(lit);
+					boolean r = reExamine(child,formula);
+					result = result || r;
+					formula.unpropagateAssignment(lit);	
+				}
+			}
+			
+			return result;
+		}
+	
+	}
+	
+	/*
+	 * update the KB tree when new knowledge comes
+	 * */
 	public void update (ICNF new_knowledge){
-		//TODO
+		merge(new_knowledge);//add the new_knowledge into the existing KB
+		DPNode root = this.kb_tree.getRoot();
+		reExamine(root, this.kb_tree.getKBFormula());
 	}
 	
 	

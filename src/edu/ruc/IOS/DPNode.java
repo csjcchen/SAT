@@ -26,11 +26,12 @@ public class DPNode {
 	private DPNode left_child;
 	private DPNode right_child;
 	private int status;// -1 UNSAT, 1 SAT, 0 NotKnown
+	private int branch_lit_id; //the id of the literal according to which this node is generated  
 	
 	
-	
-	public DPNode(ArrayList<LiteralBinding> literalBindings) {
+	public DPNode(ArrayList<LiteralBinding> literalBindings, int branch_lit) {
 		this.literalBindings =  literalBindings;
+		branch_lit_id = branch_lit;
 	}
 	
 	 /*
@@ -84,6 +85,29 @@ public class DPNode {
 
 		return str.toString();
 	}
+	
+	/*if a node's status is not UNKNOWN and has no children, 
+	  it is a leaf node; otherwise, it is a non-leaf node
+	*/
+	public boolean isLeaf(){
+		if (this.status != DPNode.NotKnown){
+			if (this.left_child==null)
+				if (this.right_child==null)
+					return true;			
+		}
+		return false;
+	}
+	
+	public Iterator<DPNode> getChildrenIterator(){
+		ArrayList<DPNode> children = new ArrayList<DPNode>();
+		if(this.left_child!=null)
+			children.add(this.left_child);
+		if (this.right_child!=null)
+			children.add(this.right_child);
+		
+		return children.iterator();
+	}
+	
 	
 	/*getters and setters*/
 		
@@ -143,8 +167,10 @@ public class DPNode {
 	public void setStatus(int status) {
 		this.status = status;
 	}
-
-
-	 
+	
+	public int getBranchLitID(){
+		return branch_lit_id;
+	}
+		 
 
 }
