@@ -40,23 +40,27 @@ public class DynamicVocImp implements IVocabulary{
 		frozen = true;
 	}
 	
+	public void un_freeze(){
+		frozen = false;
+	}
+	
 	//the input i is literal's id
 	public ILiteral getLiteral(int i) {
 
 		maxVarID = Math.max(maxVarID, Math.abs(i));
 
 		ILiteral lit=null;
-		int id = Math.abs(i) - 1; // maps from 1..n to 0..n-1
-		lit = getLitByID(i);
+		int id = Math.abs(i); // maps from 1..n to 0..n-1
+		lit = getLitByID(id);
 		if (lit == null) {
 			if (frozen) {
 				throw new UnsupportedOperationException("Not constructing formula");
 			}
-			lit =  createLiteral(id + 1);
+			lit =  createLiteral(id);
 			listVariables.add(lit);
 		}
 		
-		if (i == lit.getId()) {
+		if (i == id) {
 			return lit;
 		} else {
 			return lit.opposite();

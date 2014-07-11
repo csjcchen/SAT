@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Hashtable;
 import java.util.List;
+import java.lang.reflect.Constructor;
 
 import org.opensat.data.ICNF;
 import org.opensat.data.IClause;
@@ -55,7 +56,11 @@ public class DPTree {
 	public ICNF cloneKB(){
 		ICNF f =null;
 		try{
-			f = (ICNF)Class.forName(KBFormula.getClass().getName()).newInstance(); 
+			Class c = KBFormula.getClass();
+			Constructor con = c.getConstructor(IVocabulary.class);
+			f = (ICNF)con.newInstance(new DynamicVocImp());	
+					//Class.forName(KBFormula.getClass().getName()).newInstance(new DynamicVocImp()); 
+			
 			int numVars = this.KBFormula.getVocabulary().getMaxVariableId();
 			
 			f.beginLoadFormula();			

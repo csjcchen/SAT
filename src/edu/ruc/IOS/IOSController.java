@@ -20,8 +20,7 @@ public class IOSController {
 	public IOSController(ICNF KB) {
 		heuristic = new TwoSidedJW();
 		
-		initialize(KB);		
-		this.kb_tree.showTree();
+		initialize(KB);				
 	}
 	
 	/*
@@ -295,7 +294,12 @@ public class IOSController {
 	 * update the KB tree when new knowledge comes
 	 * */
 	public void update (ICNF new_knowledge){
+		DynamicVocImp voc = (DynamicVocImp)this.kb_tree.getKBFormula().getVocabulary();
+		voc.un_freeze();
 		merge(new_knowledge);//add the new_knowledge into the existing KB
+		System.out.println("***************** the merged formula is: *********************");
+		System.out.println(this.kb_tree.getKBFormula().toString());
+		System.out.println("***************** end  *********************");
 		DPNode root = this.kb_tree.getRoot();
 		reExamine(root, this.kb_tree.getKBFormula());
 	}
